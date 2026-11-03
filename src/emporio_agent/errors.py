@@ -12,3 +12,10 @@ class DataLoadError(EmporioError):
 
 class ConfigurationError(EmporioError):
     """Raised when the settings are incomplete or point to something that does not exist."""
+
+
+class InvalidRequestError(EmporioError):
+    """Raised when a tool receives values that make no sense, like a negative price.
+
+    The message is written for the agent, so it can fix the call or ask the customer.
+    """
