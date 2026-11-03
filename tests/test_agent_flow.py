@@ -54,6 +54,10 @@ class ScriptedChatModel(BaseChatModel):
             # This is for giving every repeated tool call its own id, like a real model does
             calls = [{**call, "id": f"call_{self.position}"} for call in reply.tool_calls]
             reply = AIMessage(content=reply.content, tool_calls=calls)
+        else:
+            # This is for sending a new message object each time, the agent state keeps
+            # messages by id and a reused object would replace the old answer
+            reply = AIMessage(content=reply.content)
         return ChatResult(generations=[ChatGeneration(message=reply)])
 
     def bind_tools(self, tools: Any, **kwargs: Any) -> "ScriptedChatModel":
@@ -154,3 +158,12 @@ def test_empty_or_huge_messages_are_rejected(tools, message):
 
     with pytest.raises(InvalidRequestError):
         session.send_message(message)
+
+
+def test_repeated_scripted_answer_is_kept_on_every_turn(tools):
+    session, _ = open_session(tools, [AIMessage(content="Sempre a mesma resposta")])
+
+    session.send_message("Primeira pergunta")
+    reply = session.send_message("Segunda pergunta")
+
+    assert reply.text == "Sempre a mesma resposta"
