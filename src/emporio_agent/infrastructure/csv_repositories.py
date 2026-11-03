@@ -83,15 +83,17 @@ class CsvProductRepository(ProductRepository):
         products = build_records(
             rows,
             path.name,
-            lambda row: Product(
-                id=int(row["product_id"]),
-                name=row["name"],
-                category_id=int(row["category_id"]),
-                description=row.get("description", ""),
-                price_brl=float(row["price_brl"]),
-                stock_quantity=int(row["stock_quantity"] or 0),
-                status=row["status"],
-                specs=parse_specs(row.get("specs", "")),
+            lambda row: Product.model_validate(
+                {
+                    "id": row["product_id"],
+                    "name": row["name"],
+                    "category_id": row["category_id"],
+                    "description": row.get("description", ""),
+                    "price_brl": row["price_brl"],
+                    "stock_quantity": row["stock_quantity"] or 0,
+                    "status": row["status"],
+                    "specs": parse_specs(row.get("specs", "")),
+                }
             ),
         )
         self._products = index_by_id(products, path.name)
@@ -260,17 +262,19 @@ class CsvOrderRepository(OrderRepository):
         orders = build_records(
             order_rows,
             orders_path.name,
-            lambda row: Order(
-                id=int(row["order_id"]),
-                customer_id=int(row["customer_id"]),
-                order_date=row["order_date"],
-                status=row["status"],
-                total_brl=float(row["total_brl"]),
-                payment_method=row.get("payment_method", ""),
-                tracking_code=empty_to_none(row.get("tracking_code", "")),
-                estimated_delivery=empty_to_none(row.get("estimated_delivery", "")),
-                notes=empty_to_none(row.get("notes", "")),
-                items=tuple(items_by_order.get(int(row["order_id"]), [])),
+            lambda row: Order.model_validate(
+                {
+                    "id": row["order_id"],
+                    "customer_id": row["customer_id"],
+                    "order_date": row["order_date"],
+                    "status": row["status"],
+                    "total_brl": row["total_brl"],
+                    "payment_method": row.get("payment_method", ""),
+                    "tracking_code": empty_to_none(row.get("tracking_code", "")),
+                    "estimated_delivery": empty_to_none(row.get("estimated_delivery", "")),
+                    "notes": empty_to_none(row.get("notes", "")),
+                    "items": tuple(items_by_order.get(int(row["order_id"]), [])),
+                }
             ),
         )
         self._orders = index_by_id(orders, orders_path.name)

@@ -25,7 +25,7 @@ def create_chat_model(model_id: str, temperature: float | None = None) -> BaseCh
         ConfigurationError: If the provider is unknown or its package is not installed.
     """
     # This is for only sending temperature when it was set, some models reject it
-    options = {"temperature": temperature} if temperature is not None else {}
+    options: dict[str, Any] = {"temperature": temperature} if temperature is not None else {}
     try:
         return init_chat_model(model_id, max_retries=3, **options)
     except ImportError as error:
