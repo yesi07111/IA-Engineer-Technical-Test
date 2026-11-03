@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pytest
 
+from emporio_agent.domain.models import PolicySection
 from emporio_agent.errors import DataLoadError
 from emporio_agent.infrastructure.bm25_policy_search import Bm25PolicySearch
 from emporio_agent.infrastructure.policy_pdf import split_policy_into_sections
@@ -73,3 +74,14 @@ def test_missing_pdf_is_a_data_error(tmp_path):
 
 def test_limit_is_respected(policy_search):
     assert len(policy_search.search("pedido produto loja", limit=1)) == 1
+
+
+def test_word_present_in_half_of_the_sections_still_counts():
+    tiny = Bm25PolicySearch(
+        [
+            PolicySection(number="1", title="Horário", text="Abrimos às 9"),
+            PolicySection(number="2", title="Pagamento", text="Aceitamos PIX"),
+        ]
+    )
+
+    assert tiny.search("pix")[0].number == "2"

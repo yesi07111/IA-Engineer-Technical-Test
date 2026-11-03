@@ -1,6 +1,6 @@
 from collections.abc import Sequence
 
-from rank_bm25 import BM25Okapi
+from rank_bm25 import BM25Plus
 
 from emporio_agent.domain.models import PolicySection
 from emporio_agent.domain.text import split_into_keywords
@@ -41,7 +41,8 @@ class Bm25PolicySearch(PolicySearch):
         self._sections = list(sections)
         # This is for giving the title more weight than the body, so it goes twice
         corpus = [stem_keywords(f"{s.title} {s.title} {s.text}") for s in self._sections]
-        self._index = BM25Okapi(corpus)
+        self._vocabularies = [set(document) for document in corpus]
+        self._index = BM25Plus(corpus)
 
     def search(self, question: str, limit: int = 3) -> Sequence[PolicySection]:
         """Searches the manual sections most related to a question.
@@ -58,5 +59,14 @@ class Bm25PolicySearch(PolicySearch):
         if not keywords:
             return []
         scores = self._index.get_scores(keywords)
-        ranked = sorted(zip(scores, self._sections, strict=True), key=lambda pair: -pair[0])
-        return [section for score, section in ranked[: max(limit, 1)] if score > 0]
+        # This works like a filter, BM25Plus gives every section some score, so only
+        # sections sharing at least one keyword with the question are kept
+        matches = [
+            (score, section)
+            for score, section, vocabulary in zip(
+                scores, self._sections, self._vocabularies, strict=True
+            )
+            if vocabulary.intersection(keywords)
+        ]
+        matches.sort(key=lambda pair: -pair[0])
+        return [section for _, section in matches[: max(limit, 1)]]
