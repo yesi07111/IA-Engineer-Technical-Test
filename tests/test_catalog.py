@@ -130,3 +130,18 @@ def test_brl_format():
     assert format_brl(1967.18) == "R$ 1.967,18"
     assert format_brl(159.9) == "R$ 159,90"
     assert format_brl(19567) == "R$ 19.567,00"
+
+
+def test_steel_strings_are_found_even_when_only_the_specs_say_it(catalog):
+    result = catalog.search_products(text="aço", category="violões", max_price=1000, limit=15)
+
+    names = [p["name"] for p in result["products"]]
+    assert "Tagima Woodstock Dreadnought Natural" in names
+    assert all(p["strings"] == "aço" for p in result["products"])
+
+
+def test_search_results_show_strings_and_electric_flag(catalog):
+    product = catalog.describe_product("Shelby SGD-195E")["product"]
+
+    assert product["strings"] == "aço"
+    assert product["electric"] is True

@@ -13,6 +13,8 @@ ORDER_STATUS_PT = {
     OrderStatus.CANCELLED: "cancelado",
 }
 
+STRING_TYPES_PT = {"steel": "aço", "nylon": "nylon"}
+
 PAYMENT_METHOD_PT = {
     "pix": "PIX",
     "debit": "cartão de débito",
@@ -67,6 +69,25 @@ def describe_availability(product: Product) -> str:
     return "disponível"
 
 
+def describe_key_specs(product: Product) -> dict[str, Any]:
+    """Picks the specs customers ask about the most, translated to Portuguese.
+
+    Args:
+        product: Any product.
+
+    Returns:
+        "strings" ("aço" or "nylon") and "electric" (True/False) when the product has them.
+    """
+    key_specs: dict[str, Any] = {}
+    strings = product.specs.get("strings")
+    if strings:
+        key_specs["strings"] = STRING_TYPES_PT.get(strings.lower(), strings)
+    electronics = product.specs.get("electronics")
+    if electronics:
+        key_specs["electric"] = electronics.lower() not in {"no", "nao", "não", "false"}
+    return key_specs
+
+
 def present_price(quote: PriceQuote) -> dict[str, Any]:
     """Turns a price quote into the compact format the agent reads.
 
@@ -112,6 +133,7 @@ def present_product(
         "category": category_name,
         "availability": describe_availability(product),
         "stock": product.stock_quantity,
+        **describe_key_specs(product),
         "price": present_price(quote),
     }
     if with_details:

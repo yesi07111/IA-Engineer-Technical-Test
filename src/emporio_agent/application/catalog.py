@@ -3,7 +3,11 @@ from typing import Any
 
 from rapidfuzz import fuzz, process
 
-from emporio_agent.application.presenters import format_brl, present_product
+from emporio_agent.application.presenters import (
+    describe_key_specs,
+    format_brl,
+    present_product,
+)
 from emporio_agent.domain.models import Category, Product
 from emporio_agent.domain.pricing import PriceCalculator, PriceQuote
 from emporio_agent.domain.text import normalize_text, split_into_keywords
@@ -280,8 +284,13 @@ class CatalogService:
         Returns:
             True when all of them appear in the name, description or specs.
         """
+        # This is for letting "aço" or "elétrico" find products whose specs say "steel" or "yes"
+        key_specs = describe_key_specs(product)
+        translated = (
+            f"{key_specs.get('strings', '')} {'eletrico' if key_specs.get('electric') else ''}"
+        )
         searchable = normalize_text(
-            f"{product.name} {product.description} {' '.join(product.specs.values())}"
+            f"{product.name} {product.description} {' '.join(product.specs.values())} {translated}"
         )
         return all(keyword in searchable for keyword in keywords)
 
