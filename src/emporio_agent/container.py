@@ -114,7 +114,7 @@ def start_chat_session(
         services.clock,
     )
     agent = build_customer_agent(
-        create_chat_model(settings.model, settings.temperature),
+        create_chat_model(settings.model, settings.temperature, settings.requests_per_minute),
         tools,
         build_system_prompt(services.clock.now()),
         checkpointer if checkpointer is not None else open_conversation_store(settings),

@@ -59,3 +59,11 @@ def test_gemini_without_any_key_names_both(monkeypatch):
 
     with pytest.raises(ConfigurationError, match="GOOGLE_API_KEY or GEMINI_API_KEY"):
         Settings(model="google_genai:gemini-flash-latest", data_dir=DATA_DIR).check_ready_to_chat()
+
+
+def test_rate_limit_is_attached_to_the_model(monkeypatch):
+    monkeypatch.setenv("GOOGLE_API_KEY", "test-key")
+
+    model = create_chat_model("google_genai:gemini-3.5-flash", requests_per_minute=5)
+
+    assert model.rate_limiter is not None

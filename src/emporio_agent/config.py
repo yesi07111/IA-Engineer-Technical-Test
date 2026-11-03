@@ -27,6 +27,9 @@ class Settings(BaseSettings):
     memory_db: Path = Path(".memory/conversations.sqlite")
     timezone: str = "America/Campo_Grande"
     max_agent_steps: int = Field(25, ge=5, le=100)
+    requests_per_minute: float | None = Field(
+        None, gt=0, description="Limit for free tiers, e.g. 5. Empty means no limit"
+    )
 
     @field_validator("model")
     @classmethod
