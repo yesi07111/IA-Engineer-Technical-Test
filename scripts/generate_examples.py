@@ -1,9 +1,11 @@
 """Runs the example scenarios against the real model and saves them as Markdown.
 
 Usage (from the project root, with the .env configured):
-    python scripts/generate_examples.py
+    python scripts/generate_examples.py              # every scenario
+    python scripts/generate_examples.py 03 05        # only the scenarios starting with 03 and 05
 """
 
+import sys
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -113,16 +115,43 @@ def run_scenario(settings: Settings, scenario: Scenario) -> str:
     return "\n".join(lines)
 
 
+def pick_scenarios(prefixes: list[str]) -> list[Scenario]:
+    """Selects the scenarios whose slug starts with one of the given prefixes.
+
+    Args:
+        prefixes: Command line arguments, e.g. ["03", "05"]. Empty means all.
+
+    Returns:
+        The selected scenarios, in their original order.
+    """
+    if not prefixes:
+        return list(SCENARIOS)
+    return [s for s in SCENARIOS if any(s.slug.startswith(prefix) for prefix in prefixes)]
+
+
 def main() -> None:
-    """Generates every scenario file in examples/conversations."""
+    """Generates the selected scenario files in examples/conversations.
+
+    A scenario that fails (e.g. provider quota) is reported and skipped, so the files
+    already written are kept.
+    """
     load_dotenv()
     settings = Settings()
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    for scenario in SCENARIOS:
+    failures = 0
+    for scenario in pick_scenarios(sys.argv[1:]):
         print(f"Running {scenario.slug}...")
+        try:
+            content = run_scenario(settings, scenario)
+        except Exception as error:
+            failures += 1
+            print(f"  failed: {type(error).__name__}: {str(error)[:200]}")
+            continue
         target = OUTPUT_DIR / f"{scenario.slug}.md"
-        target.write_text(run_scenario(settings, scenario), encoding="utf-8")
+        target.write_text(content, encoding="utf-8")
         print(f"  saved {target}")
+    if failures:
+        sys.exit(1)
 
 
 if __name__ == "__main__":
