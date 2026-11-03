@@ -7,10 +7,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from emporio_agent.errors import ConfigurationError
 
 # This is for telling the user which key is missing before the first message fails
-PROVIDER_API_KEYS = {
-    "anthropic": "ANTHROPIC_API_KEY",
-    "openai": "OPENAI_API_KEY",
-    "google_genai": "GOOGLE_API_KEY",
+PROVIDER_API_KEYS: dict[str, tuple[str, ...]] = {
+    "anthropic": ("ANTHROPIC_API_KEY",),
+    "openai": ("OPENAI_API_KEY",),
+    "google_genai": ("GOOGLE_API_KEY", "GEMINI_API_KEY"),
 }
 
 
@@ -68,8 +68,9 @@ class Settings(BaseSettings):
                 f"Data folder not found: {self.data_dir.resolve()}. Run the command from the "
                 "project root or set EMPORIO_DATA_DIR."
             )
-        key_name = PROVIDER_API_KEYS.get(self.provider)
-        if key_name and not os.environ.get(key_name):
+        key_names = PROVIDER_API_KEYS.get(self.provider, ())
+        if key_names and not any(os.environ.get(name) for name in key_names):
             raise ConfigurationError(
-                f"{key_name} is not set. Add it to .env or pick another provider in EMPORIO_MODEL."
+                f"{' or '.join(key_names)} is not set. Add it to .env or pick another provider "
+                "in EMPORIO_MODEL."
             )

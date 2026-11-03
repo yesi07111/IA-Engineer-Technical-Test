@@ -44,3 +44,18 @@ def test_empty_temperature_means_model_default(monkeypatch):
     monkeypatch.setenv("EMPORIO_TEMPERATURE", "")
 
     assert Settings().temperature is None
+
+
+def test_gemini_accepts_either_key_name(monkeypatch):
+    monkeypatch.delenv("GOOGLE_API_KEY", raising=False)
+    monkeypatch.setenv("GEMINI_API_KEY", "test-key")
+
+    Settings(model="google_genai:gemini-flash-latest", data_dir=DATA_DIR).check_ready_to_chat()
+
+
+def test_gemini_without_any_key_names_both(monkeypatch):
+    monkeypatch.delenv("GOOGLE_API_KEY", raising=False)
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+
+    with pytest.raises(ConfigurationError, match="GOOGLE_API_KEY or GEMINI_API_KEY"):
+        Settings(model="google_genai:gemini-flash-latest", data_dir=DATA_DIR).check_ready_to_chat()
