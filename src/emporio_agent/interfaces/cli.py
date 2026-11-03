@@ -126,5 +126,38 @@ def check() -> None:
         console.print(f"[yellow]Model not ready:[/yellow] {error}")
 
 
+@app.command()
+def serve(
+    host: str = typer.Option("127.0.0.1", help="Address to listen on."),
+    port: int = typer.Option(8000, help="Port to listen on."),
+) -> None:
+    """Starts the HTTP API and the web chat page (needs the "web" extra).
+
+    Args:
+        host: Address to listen on.
+        port: Port to listen on.
+    """
+    try:
+        import uvicorn
+
+        from emporio_agent.interfaces.web import create_web_app
+    except ImportError as error:
+        console.print('[red]Install the web extra first:[/red] pip install -e ".[web]"')
+        raise typer.Exit(code=1) from error
+
+    settings = load_settings()
+    try:
+        settings.check_ready_to_chat()
+    except EmporioError as error:
+        console.print(f"[red]Could not start the agent:[/red] {error}")
+        raise typer.Exit(code=1) from error
+    console.print(f"Web chat on http://{host}:{port}")
+    uvicorn.run(
+        create_web_app(lambda session_id: start_chat_session(settings, session_id)),
+        host=host,
+        port=port,
+    )
+
+
 if __name__ == "__main__":
     app()
