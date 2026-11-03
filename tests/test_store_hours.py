@@ -49,3 +49,16 @@ def test_system_clock_uses_the_store_time_zone():
 def test_unknown_time_zone_is_a_configuration_error():
     with pytest.raises(ConfigurationError):
         SystemClock("Mars/Olympus_Mons")
+
+
+@pytest.mark.parametrize(
+    ("moment", "expected"),
+    [
+        (at(2026, 11, 3, 7, 30), "hoje às 09:00"),  # Tuesday early morning
+        (at(2026, 11, 3, 19, 0), "amanhã às 09:00"),
+        (at(2026, 11, 7, 14, 0), "segunda às 09:00"),  # Saturday afternoon
+        (at(2026, 11, 8, 10, 0), "amanhã às 09:00"),  # Sunday
+    ],
+)
+def test_next_opening_is_described_in_portuguese(moment, expected):
+    assert StoreSchedule().describe_next_opening(moment) == expected
