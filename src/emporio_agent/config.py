@@ -17,10 +17,12 @@ PROVIDER_API_KEYS = {
 class Settings(BaseSettings):
     """Settings read from environment variables prefixed with EMPORIO_ or from .env."""
 
-    model_config = SettingsConfigDict(env_prefix="EMPORIO_", env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_prefix="EMPORIO_", env_file=".env", extra="ignore", env_ignore_empty=True
+    )
 
     model: str = Field("anthropic:claude-sonnet-5-5", description="provider:model")
-    temperature: float = Field(0.2, ge=0, le=1)
+    temperature: float | None = Field(None, ge=0, le=1, description="None uses the default")
     data_dir: Path = Path("data")
     memory_db: Path = Path(".memory/conversations.sqlite")
     timezone: str = "America/Campo_Grande"

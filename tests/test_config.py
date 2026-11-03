@@ -38,3 +38,9 @@ def test_local_providers_do_not_need_a_key():
 def test_unknown_provider_is_a_configuration_error():
     with pytest.raises(ConfigurationError):
         create_chat_model("not_a_provider:model")
+
+
+def test_empty_temperature_means_model_default(monkeypatch):
+    monkeypatch.setenv("EMPORIO_TEMPERATURE", "")
+
+    assert Settings().temperature is None

@@ -10,12 +10,13 @@ from langgraph.types import Checkpointer
 from emporio_agent.errors import ConfigurationError
 
 
-def create_chat_model(model_id: str, temperature: float = 0.2) -> BaseChatModel:
+def create_chat_model(model_id: str, temperature: float | None = None) -> BaseChatModel:
     """Creates the LLM client for any provider supported by LangChain.
 
     Args:
         model_id: Model in "provider:model" format, e.g. "anthropic:claude-sonnet-5-5".
-        temperature: Sampling temperature, low keeps answers consistent.
+        temperature: Sampling temperature. None keeps the provider default, which is
+            required by models that do not accept a custom temperature.
 
     Returns:
         The chat model, with retries for temporary provider errors.
@@ -23,8 +24,10 @@ def create_chat_model(model_id: str, temperature: float = 0.2) -> BaseChatModel:
     Raises:
         ConfigurationError: If the provider is unknown or its package is not installed.
     """
+    # This is for only sending temperature when it was set, some models reject it
+    options = {"temperature": temperature} if temperature is not None else {}
     try:
-        return init_chat_model(model_id, temperature=temperature, max_retries=3)
+        return init_chat_model(model_id, max_retries=3, **options)
     except ImportError as error:
         raise ConfigurationError(
             f"The package for '{model_id}' is not installed. Install the matching extra, "
