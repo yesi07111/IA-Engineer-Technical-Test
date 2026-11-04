@@ -368,7 +368,9 @@ def build_html() -> str:
   </tbody></table>
   <h2>Purpose of this Document</h2>
   <p>This report documents the solution delivered for the written case of the Artefact
-  selection process: a prototype customer service agent for Empório da Música. Part I
+  selection process: a prototype customer service agent for Empório da Música. The solution
+  has a deliberately simple core that fully answers the brief, plus optional extras that are
+  clearly marked as such. Part I
   reproduces the project README, which explains how to run the project and summarises the
   technical decisions, assumptions, limitations and use of AI assistants. Part II contains
   the technical documentation: architecture, decision record, business rules, data analysis,
@@ -376,6 +378,8 @@ def build_html() -> str:
   the agent in action and the results of its evaluation with the real language model.</p>
   <h2>Reading Guide</h2>
   <table><thead><tr><th>If you want to…</th><th>Read</th></tr></thead><tbody>
+    <tr><td>See the simple core and the optional extras</td>
+      <td>Part I, first two sections; Part II, section 1.2</td></tr>
     <tr><td>Run the project and get a summary</td><td>Part I — Project README</td></tr>
     <tr><td>Get the overall picture and results</td><td>Part II, section 1 (Overview)</td></tr>
     <tr><td>Understand the design and why it was chosen</td><td>Part II, sections 2 and 3</td></tr>

@@ -22,7 +22,7 @@ GitHub Actions runs on every push, on Python 3.11, 3.12 and 3.13. Each run check
 
 ## 7.3 Behavioural evaluation with the real model
 
-`scripts/evaluate_agent.py` runs fifteen scenarios against Gemini 3.5 Flash. Each scenario checks three aspects:
+`scripts/evaluate_agent.py` (an optional extra, not part of the agent) runs fifteen scenarios against Gemini 3.5 Flash. Each scenario checks three aspects:
 
 - **Tool selection:** the expected tool was used, or no tool when none is needed.
 - **Grounding:** the required facts are present in the answer.

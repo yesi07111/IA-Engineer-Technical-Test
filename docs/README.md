@@ -4,7 +4,7 @@ This folder holds the technical documentation of the Empório da Música custome
 
 | Document | Content |
 |---|---|
-| [1. Overview](01-overview.md) | Executive summary, business problem, objectives, inputs and capabilities |
+| [1. Overview](01-overview.md) | Executive summary, the simple core and the optional extras, business problem, objectives, inputs and capabilities |
 | [2. Architecture](02-architecture.md) | Layers, design principles and agent tools |
 | [3. Technical Decisions](03-technical-decisions.md) | Choices, rationale, alternatives considered and prompt strategy |
 | [4. Business Rules](04-business-rules.md) | Store rules implemented in code and where |

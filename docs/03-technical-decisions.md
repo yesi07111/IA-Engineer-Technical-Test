@@ -2,6 +2,8 @@
 
 ## 3.1 Decision record
 
+The guiding principle was to choose the **simplest option that answers the brief reliably**. Every decision below favours plain code and exact lookups over additional components. Rate limiting, the extra interfaces, tickets and the audit are optional extras, outside the core.
+
 | Decision | Choice | Rationale | Alternatives considered |
 |---|---|---|---|
 | Agent approach | Tool-calling (ReAct) agent with deterministic tools | Exact numbers and filters ("under R$ 1,000", "in stock") need code, not semantic similarity. The model decides *what* to ask; the code decides *the answer*. | Pure RAG: unreliable for prices and stock. SQL agent: risk of wrong queries and of exposing customer data. |
@@ -11,7 +13,7 @@
 | Business rules | Implemented in Python and unit tested | Deterministic, auditable and consistent with the manual; prevents numeric hallucinations. | Rules in the prompt only: not verifiable and prone to arithmetic errors. |
 | Data access | CSV files behind repository interfaces, validated on load | Volumes are small, and validation catches corrupted data early. A database can replace the files without touching the agent. | SQLite or PostgreSQL: unnecessary for 65 products, and the interfaces already allow it. |
 | Memory | LangGraph SQLite checkpointer per session | The customer does not need to repeat the order number, and conversations survive restarts. | In-memory only: loses context on restart. |
-| Interfaces | CLI (the brief's focus), plus web API and MCP server | The CLI keeps the focus on the agent. The other channels prove the core is independent of the interface. | — |
+| Interfaces | CLI chat (core); web API and MCP server as optional extras | The CLI is the simplest interface and keeps the focus on the agent. The extra channels only show that the core does not depend on the interface. | A web front end as the main interface: more work, no gain for the evaluation. |
 | Rate limiting | Client-side limiter (`EMPORIO_REQUESTS_PER_MINUTE`) | The Gemini free tier allows 5 requests per minute; calls wait their turn instead of failing. | Retrying only after errors: slower and noisier. |
 
 ## 3.2 Prompt strategy

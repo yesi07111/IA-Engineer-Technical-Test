@@ -4,6 +4,8 @@
 
 The code follows a **ports and adapters** (hexagonal) architecture. Business rules have no dependency on frameworks, files or the language model. Application and domain code depend only on the interfaces in `ports/`. Infrastructure classes implement those interfaces, and `container.py` is the only module that wires concrete classes together.
 
+The layering is kept light: a few small interfaces and plain classes, with no dependency injection framework. Its purpose is practical. It keeps each piece testable without the model, and it lets the optional extras (web API, MCP server, tickets, audit) reuse the core without modifying it. A single-channel prototype could use a flatter structure.
+
 ![Layered architecture](diagrams/architecture.svg)
 
 *Figure 2. Layers of the solution.*
@@ -29,17 +31,17 @@ The code follows a **ports and adapters** (hexagonal) architecture. Business rul
 
 ## 2.3 Agent tools
 
-| Tool | Purpose | Data source |
-|---|---|---|
-| `search_products` | Catalog search with filters | Products, categories, promotions |
-| `get_product_details` | Full details of one product | Products, promotions |
-| `list_active_promotions` | Current promotions | Promotions |
-| `list_categories` | Categories and available counts | Categories, products |
-| `get_order_status` | Order status with identity check | Orders, customers |
-| `check_return_eligibility` | Return and exchange rules for one order | Orders, customers, return rules |
-| `search_store_policies` | Relevant sections of the manual | Policy PDF |
-| `get_store_status` | Open now, weekly hours, next opening | Clock, schedule |
-| `forward_to_team` | Ticket for the store team | Ticket storage |
+| Tool | Purpose | Data source | Part |
+|---|---|---|---|
+| `search_products` | Catalog search with filters | Products, categories, promotions | Core |
+| `get_product_details` | Full details of one product | Products, promotions | Core |
+| `list_active_promotions` | Current promotions | Promotions | Core |
+| `list_categories` | Categories and available counts | Categories, products | Core |
+| `get_order_status` | Order status with identity check | Orders, customers | Core |
+| `check_return_eligibility` | Return and exchange rules for one order | Orders, customers, return rules | Core |
+| `search_store_policies` | Relevant sections of the manual | Policy PDF | Core |
+| `get_store_status` | Open now, weekly hours, next opening | Clock, schedule | Core |
+| `forward_to_team` | Ticket for the store team | Ticket storage | Extra |
 
 Every tool validates its input with a schema. Errors are returned to the model as clear messages instead of interrupting the conversation (see [6. Security and Error Handling](06-security-and-error-handling.md)).
 
