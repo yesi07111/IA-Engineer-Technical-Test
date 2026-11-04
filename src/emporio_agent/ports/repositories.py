@@ -73,6 +73,14 @@ class OrderRepository(ABC):
     """Read access to the orders and their items."""
 
     @abstractmethod
+    def list_all(self) -> Sequence[Order]:
+        """Lists every order with its items.
+
+        Returns:
+            All the orders.
+        """
+
+    @abstractmethod
     def get_by_id(self, order_id: int) -> Order | None:
         """Finds one order by its number, with its items.
 
@@ -86,6 +94,14 @@ class OrderRepository(ABC):
 
 class CustomerRepository(ABC):
     """Read access to the customers."""
+
+    @abstractmethod
+    def list_all(self) -> Sequence[Customer]:
+        """Lists every customer.
+
+        Returns:
+            All the customers.
+        """
 
     @abstractmethod
     def get_by_id(self, customer_id: int) -> Customer | None:

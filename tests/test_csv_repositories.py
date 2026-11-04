@@ -93,3 +93,11 @@ def test_repeated_id_is_rejected(tmp_path):
 
     with pytest.raises(DataLoadError, match="more than once"):
         CsvProductRepository(broken)
+
+
+def test_orders_and_customers_can_be_listed():
+    orders = CsvOrderRepository(DATA_DIR / "orders.csv", DATA_DIR / "order_items.csv")
+    customers = CsvCustomerRepository(DATA_DIR / "customers.csv")
+
+    assert len(orders.list_all()) == 20
+    assert len(customers.list_all()) == 50
