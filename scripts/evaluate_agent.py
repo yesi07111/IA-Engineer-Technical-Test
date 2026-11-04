@@ -160,6 +160,7 @@ def main() -> None:
     load_dotenv()
     cases = json.loads(CASES_FILE.read_text(encoding="utf-8"))
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    errors = 0
 
     if not args.report_only:
         selected = set(args.only.split(",")) if args.only else {case["id"] for case in cases}
@@ -176,6 +177,7 @@ def main() -> None:
             try:
                 result = run_case(settings, case)
             except Exception as error:
+                errors += 1
                 print(f"  error: {type(error).__name__}: {str(error)[:200]}")
                 continue
             cached = CACHE_DIR / f"{case['id']}.json"
@@ -184,6 +186,10 @@ def main() -> None:
 
     passed, total = write_report(cases)
     print(f"\n{passed}/{total} cases passed · report saved in {REPORT_FILE}")
+    if errors:
+        print(f"{errors} case(s) could not run, run them again with --only")
+    if errors or passed < total:
+        sys.exit(1)
 
 
 if __name__ == "__main__":
