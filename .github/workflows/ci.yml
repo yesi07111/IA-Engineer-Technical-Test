@@ -20,7 +20,7 @@ jobs:
           cache: pip
 
       - name: Install
-        run: pip install -e ".[google,web,mcp,dev]"
+        run: pip install -e ".[google,web,mcp,dev,docs]"
 
       - name: Lint
         run: ruff check . && ruff format --check .

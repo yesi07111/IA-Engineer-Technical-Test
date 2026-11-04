@@ -1,0 +1,69 @@
+/* Print style of the documentation PDF, minimum text size is 9pt so everything stays readable */
+@page { size: A4; margin: 22mm 17mm 20mm 17mm; }
+@page :first { margin: 0; }
+* { box-sizing: border-box; }
+body { font-family: "Segoe UI", Calibri, Arial, sans-serif; font-size: 10.5pt; line-height: 1.5;
+       color: #1d2733; margin: 0; }
+h1, h2, h3, h4 { color: #0f2a4a; line-height: 1.25; break-after: avoid; }
+h2 { font-size: 15pt; border-bottom: 2px solid #c8102e; padding-bottom: 4px; margin: 24px 0 10px; }
+h3 { font-size: 12.5pt; margin: 18px 0 6px; }
+h4 { font-size: 11pt; margin: 14px 0 4px; }
+p { margin: 6px 0; text-align: justify; }
+ul, ol { margin: 6px 0 6px 20px; padding: 0; }
+li { margin: 3px 0; }
+a { color: #0f4c81; text-decoration: none; }
+strong { color: #0f2a4a; }
+em { color: #4a5868; }
+hr { display: none; }
+code { font-family: Consolas, "Courier New", monospace; font-size: 9.3pt; color: #7a1b2c;
+       background: #f3f5f8; padding: 0 3px; border-radius: 2px; }
+pre { background: #f3f5f8; border: 1px solid #d5dce4; border-left: 3px solid #0f2a4a;
+      padding: 8px 10px; white-space: pre-wrap; font-size: 9.3pt; line-height: 1.4; break-inside: avoid; }
+pre code { background: none; color: #1d2733; padding: 0; }
+table { border-collapse: collapse; width: 100%; margin: 8px 0 12px; font-size: 9.5pt; line-height: 1.4; }
+thead { display: table-header-group; }
+th { background: #0f2a4a; color: #fff; font-weight: 600; text-align: left; padding: 5px 7px; }
+td { border-bottom: 1px solid #d5dce4; padding: 5px 7px; vertical-align: top; }
+tbody tr:nth-child(even) td { background: #f6f8fa; }
+tr { break-inside: avoid; }
+img.diagram { display: block; width: 100%; margin: 12px 0 4px; break-inside: avoid; }
+p:has(img.diagram) { margin: 0; }
+p:has(img.diagram) + p em { display: block; text-align: center; font-size: 9.5pt; }
+
+.cover { height: 297mm; width: 210mm; position: relative; break-after: page; overflow: hidden;
+         background: linear-gradient(160deg, #0f2a4a 0%, #0f2a4a 58%, #ffffff 58.1%); }
+.cover .accent { position: absolute; left: 22mm; top: 30mm; width: 40mm; height: 3px; background: #c8102e; }
+.cover-inner { position: absolute; left: 22mm; right: 22mm; top: 38mm; color: #fff; }
+.cover .brand { font-size: 10.5pt; letter-spacing: 3px; text-transform: uppercase; color: #f2b8c2; }
+.cover .cover-title { font-size: 31pt; line-height: 1.15; margin: 14px 0 8px; color: #fff; border: 0; }
+.cover .subtitle { font-size: 14pt; color: #d6e0eb; }
+.cover .doc-type { display: inline-block; margin-top: 18px; padding: 4px 12px; border: 1px solid #f2b8c2;
+                   color: #fff; font-size: 10pt; letter-spacing: 1px; text-transform: uppercase; }
+.cover-meta { position: absolute; left: 22mm; right: 22mm; bottom: 28mm; }
+.cover-meta table { font-size: 10.5pt; }
+.cover-meta td { background: none !important; padding: 7px 4px; }
+.cover-meta td:first-child { width: 42mm; color: #4a5868; font-weight: 600; }
+
+.front { break-after: page; }
+.front h2 { margin-top: 0; }
+.toc { list-style: none; margin: 6px 0; padding: 0; }
+.toc li { border-bottom: 1px dotted #c3ccd6; padding: 2px 0; margin: 0; font-size: 9.6pt; }
+.toc .toc-part { font-weight: 700; font-size: 10.5pt; margin-top: 8px; color: #c8102e; border-bottom: 1px solid #c8102e; }
+.toc .toc-part a { color: #c8102e; }
+.toc .toc-l1 { font-weight: 600; padding-left: 8px; }
+.toc .toc-l2 { padding-left: 24px; font-size: 9.2pt; }
+
+.part, .appendix { break-before: page; }
+.part-title { font-size: 20pt; color: #0f2a4a; border-bottom: 3px solid #c8102e; padding-bottom: 6px;
+              margin: 0 0 12px; }
+.doc { margin-top: 10px; }
+.doc + .doc { border-top: 0; }
+
+.example { border: 1px solid #d5dce4; border-radius: 4px; padding: 4px 12px 8px; margin: 10px 0 14px; }
+.example h3 { margin-top: 8px; }
+.example .goal { color: #4a5868; font-size: 9.6pt; }
+.example blockquote { margin: 2px 0; padding: 0 8px; border-left: 2px solid #c8102e; color: #4a5868; font-size: 9.3pt; }
+.example blockquote p { margin: 2px 0; }
+
+#appendix-b ~ table td, .appendix:last-child td { padding: 3px 7px; }
+.appendix:last-child table { line-height: 1.3; }
