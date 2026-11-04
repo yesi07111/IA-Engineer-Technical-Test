@@ -29,3 +29,12 @@ def test_text_checks_ignore_accents_and_case():
 
 def test_unexpected_tools_fail_no_tool_cases():
     assert check_answer({"expect_no_tools": True}, ["get_order_status"], ["ok"])
+
+
+def test_any_of_several_wordings_is_accepted():
+    case = {"must_contain_any": ["fechado", "não abrimos"]}
+
+    assert check_answer(case, [], ["Não abrimos aos domingos"]) == []
+    assert check_answer(case, [], ["Abrimos sim!"]) == [
+        "answer has none of ['fechado', 'não abrimos']"
+    ]

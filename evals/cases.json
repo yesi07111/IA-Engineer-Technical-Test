@@ -75,7 +75,7 @@
     "goal": "Opening hours answered from the tools",
     "messages": ["Vocês abrem no domingo?"],
     "expect_tools": ["get_store_status", "search_store_policies"],
-    "must_contain": ["fechad"]
+    "must_contain_any": ["fechad", "nao abrimos", "nao abre", "nao funcionamos"]
   },
   {
     "id": "accessories_out_of_scope",

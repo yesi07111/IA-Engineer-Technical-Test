@@ -68,6 +68,10 @@ def check_answer(case: dict[str, Any], tools_used: list[str], replies: list[str]
     for text in case.get("must_contain", []):
         if normalize_text(text) not in last_answer:
             failures.append(f"answer is missing '{text}'")
+    # This is for facts that can be said in different ways, one of the options is enough
+    options = case.get("must_contain_any", [])
+    if options and not any(normalize_text(text) in last_answer for text in options):
+        failures.append(f"answer has none of {options}")
     for text in case.get("must_not_contain", []):
         if normalize_text(text) in all_answers:
             failures.append(f"answer should not contain '{text}'")
