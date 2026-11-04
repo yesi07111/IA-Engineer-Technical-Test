@@ -21,7 +21,7 @@ class Settings(BaseSettings):
         env_prefix="EMPORIO_", env_file=".env", extra="ignore", env_ignore_empty=True
     )
 
-    model: str = Field("anthropic:claude-sonnet-5-5", description="provider:model")
+    model: str = Field("google_genai:gemini-3.5-flash", description="provider:model")
     temperature: float | None = Field(None, ge=0, le=1, description="None uses the default")
     data_dir: Path = Path("data")
     memory_db: Path = Path(".memory/conversations.sqlite")
@@ -49,7 +49,7 @@ class Settings(BaseSettings):
         value = value.strip()
         provider, _, name = value.partition(":")
         if not provider or not name:
-            raise ValueError("use the format provider:model, e.g. anthropic:claude-sonnet-5-5")
+            raise ValueError("use the format provider:model, e.g. google_genai:gemini-3.5-flash")
         return value
 
     @property

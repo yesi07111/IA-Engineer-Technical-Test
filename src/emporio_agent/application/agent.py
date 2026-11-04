@@ -17,7 +17,7 @@ def create_chat_model(
     """Creates the LLM client for any provider supported by LangChain.
 
     Args:
-        model_id: Model in "provider:model" format, e.g. "anthropic:claude-sonnet-5-5".
+        model_id: Model in "provider:model" format, e.g. "google_genai:gemini-3.5-flash".
         temperature: Sampling temperature. None keeps the provider default, which is
             required by models that do not accept a custom temperature.
         requests_per_minute: Max calls per minute to the provider, e.g. 5 for a free
