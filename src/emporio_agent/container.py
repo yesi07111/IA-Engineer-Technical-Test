@@ -7,6 +7,7 @@ from langgraph.checkpoint.sqlite import SqliteSaver
 from emporio_agent.application.agent import build_customer_agent, create_chat_model
 from emporio_agent.application.catalog import CatalogService
 from emporio_agent.application.chat import ChatSession
+from emporio_agent.application.data_audit import DataAuditor
 from emporio_agent.application.handoff import HandoffService
 from emporio_agent.application.orders import OrderLookupService
 from emporio_agent.application.prompts import build_system_prompt
@@ -74,6 +75,28 @@ def load_store_services(settings: Settings) -> StoreServices:
     clock = SystemClock(settings.timezone)
     handoff = HandoffService(JsonlTicketRepository(settings.tickets_file), clock)
     return StoreServices(catalog, order_lookup, policy_search, StoreSchedule(), clock, handoff)
+
+
+def build_data_auditor(settings: Settings) -> DataAuditor:
+    """Loads the data files for the consistency checks. Nothing here calls the LLM.
+
+    Args:
+        settings: Location of the data folder.
+
+    Returns:
+        The auditor.
+
+    Raises:
+        DataLoadError: If a data file is missing or invalid.
+    """
+    data = settings.data_dir
+    return DataAuditor(
+        CsvProductRepository(data / "products.csv"),
+        CsvCategoryRepository(data / "categories.csv"),
+        CsvPromotionRepository(data / "promotions.csv"),
+        CsvOrderRepository(data / "orders.csv", data / "order_items.csv"),
+        CsvCustomerRepository(data / "customers.csv"),
+    )
 
 
 def open_conversation_store(settings: Settings) -> SqliteSaver:

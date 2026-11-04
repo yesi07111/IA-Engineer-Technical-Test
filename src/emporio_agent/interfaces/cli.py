@@ -9,7 +9,12 @@ from rich.table import Table
 
 from emporio_agent.application.chat import ChatSession
 from emporio_agent.config import Settings
-from emporio_agent.container import build_chat_agent, load_store_services, start_chat_session
+from emporio_agent.container import (
+    build_chat_agent,
+    build_data_auditor,
+    load_store_services,
+    start_chat_session,
+)
 from emporio_agent.errors import EmporioError, InvalidRequestError
 
 app = typer.Typer(help="Empório da Música customer service agent.", no_args_is_help=True)
@@ -158,6 +163,35 @@ def serve(
         host=host,
         port=port,
     )
+
+
+SEVERITY_COLORS = {"high": "red", "medium": "yellow", "low": "cyan"}
+
+
+@app.command()
+def audit() -> None:
+    """Lists the inconsistencies found in the store data, for the team to fix."""
+    settings = load_settings()
+    try:
+        auditor = build_data_auditor(settings)
+        clock_now = load_store_services(settings).clock.now()
+    except EmporioError as error:
+        console.print(f"[red]Data problem:[/red] {error}")
+        raise typer.Exit(code=1) from error
+
+    issues = auditor.find_issues(clock_now.date())
+    if not issues:
+        console.print("[green]No issues found.[/green]")
+        return
+    table = Table(title=f"Data issues ({len(issues)})", show_lines=True)
+    for column in ("Severity", "Table", "Record", "Problem"):
+        table.add_column(column)
+    for issue in issues:
+        color = SEVERITY_COLORS[issue.severity.value]
+        table.add_row(
+            f"[{color}]{issue.severity.value}[/{color}]", issue.table, issue.record, issue.message
+        )
+    console.print(table)
 
 
 @app.command()
