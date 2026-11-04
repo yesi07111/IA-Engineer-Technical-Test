@@ -3,11 +3,14 @@ import logging
 from collections.abc import Callable
 from typing import Any
 
+from langchain_core.runnables import RunnableConfig
 from langchain_core.tools import BaseTool, StructuredTool
 from pydantic import BaseModel, Field
 
 from emporio_agent.application.catalog import CatalogService
+from emporio_agent.application.handoff import HandoffService
 from emporio_agent.application.orders import OrderLookupService
+from emporio_agent.domain.models import TicketReason
 from emporio_agent.domain.returns import ReturnReason
 from emporio_agent.domain.store_hours import StoreSchedule
 from emporio_agent.errors import InvalidRequestError
@@ -62,6 +65,22 @@ class NoInput(BaseModel):
     pass
 
 
+class HandoffInput(BaseModel):
+    reason: TicketReason = Field(
+        description="complaint, return_request, late_delivery, product_request or other"
+    )
+    summary: str = Field(
+        min_length=10,
+        max_length=1000,
+        description="What happened and what the customer wants, in Portuguese, for the team",
+    )
+    customer_contact: str = Field(
+        min_length=3, max_length=120, description="E-mail or phone where the team can answer"
+    )
+    customer_name: str | None = Field(None, max_length=120)
+    order_id: int | None = Field(None, gt=0, description="Related order number, if any")
+
+
 def return_errors_to_agent(function: Callable[..., Any]) -> Callable[..., Any]:
     """Wraps a tool so errors come back as a message instead of breaking the conversation.
 
@@ -93,6 +112,7 @@ def build_agent_tools(
     policy_search: PolicySearch,
     schedule: StoreSchedule,
     clock: Clock,
+    handoff: HandoffService | None = None,
 ) -> list[BaseTool]:
     """Creates the tools the agent can call, each one backed by a service.
 
@@ -102,6 +122,8 @@ def build_agent_tools(
         policy_search: Search over the policy manual.
         schedule: Opening hours.
         clock: Current time in the store's time zone.
+        handoff: Ticket service for the store team. Without it the agent only shares the
+            store contacts.
 
     Returns:
         The tools, ready to give to the agent.
@@ -216,6 +238,33 @@ def build_agent_tools(
             "next_opening": schedule.describe_next_opening(now),
         }
 
+    def forward_to_team(
+        reason: TicketReason,
+        summary: str,
+        customer_contact: str,
+        config: RunnableConfig,
+        customer_name: str | None = None,
+        order_id: int | None = None,
+    ) -> dict[str, Any]:
+        """Opens a ticket so a person from the team continues the case.
+
+        Args:
+            reason: Kind of case.
+            summary: Case summary for the team.
+            customer_contact: E-mail or phone to answer.
+            config: Run config injected by LangChain, used to read the session id.
+            customer_name: Customer name, if known.
+            order_id: Related order, if any.
+
+        Returns:
+            Ticket number and expected response time.
+        """
+        assert handoff is not None
+        session_id = config.get("configurable", {}).get("thread_id")
+        return handoff.open_ticket(
+            TicketReason(reason), summary, customer_contact, customer_name, order_id, session_id
+        )
+
     # This is the description the model reads to decide which tool fits each question
     catalog_of_tools: list[tuple[Callable[..., Any], type[BaseModel], str]] = [
         (
@@ -252,6 +301,17 @@ def build_agent_tools(
         ),
         (get_store_status, NoInput, "Current time in Campo Grande and if the store is open."),
     ]
+    if handoff is not None:
+        catalog_of_tools.append(
+            (
+                forward_to_team,
+                HandoffInput,
+                "Hands the case to a person of the store team (complaints, return or exchange "
+                "requests, late deliveries, products the customer wants that we don't have, "
+                "anything you can't solve). Confirm with the customer and get an e-mail or "
+                "phone before calling it. Tell the customer the ticket number.",
+            )
+        )
     return [
         StructuredTool.from_function(
             func=return_errors_to_agent(function),

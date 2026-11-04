@@ -140,3 +140,37 @@ def test_unexpected_errors_are_hidden_from_the_customer(catalog, orders, custome
     policy_tool = next(tool for tool in built if tool.name == "search_store_policies")
 
     assert policy_tool.invoke({"question": "horário"}) == {"error": UNEXPECTED_ERROR}
+
+
+def test_forward_to_team_tool_saves_the_session_id(catalog, orders, customers, products, tmp_path):
+    from emporio_agent.application.handoff import HandoffService
+    from emporio_agent.infrastructure.jsonl_tickets import JsonlTicketRepository
+
+    clock = FrozenClock(datetime(2026, 11, 3, 10, 0, tzinfo=ZoneInfo("America/Campo_Grande")))
+    handoff = HandoffService(JsonlTicketRepository(tmp_path / "tickets.jsonl"), clock)
+    built = build_agent_tools(
+        catalog,
+        OrderLookupService(orders, customers, products, ReturnPolicy()),
+        Bm25PolicySearch(split_policy_into_sections(POLICY_PDF)),
+        StoreSchedule(),
+        clock,
+        handoff,
+    )
+    forward = next(tool for tool in built if tool.name == "forward_to_team")
+
+    answer = forward.invoke(
+        {
+            "reason": "complaint",
+            "summary": "Cliente reclamou da demora na resposta do WhatsApp.",
+            "customer_contact": "(67) 99812-3456",
+        },
+        config={"configurable": {"thread_id": "chat-42"}},
+    )
+
+    assert answer["ticket_id"].startswith("EM-")
+    assert handoff.list_tickets()[0].session_id == "chat-42"
+    assert "config" not in forward.tool_call_schema.model_json_schema()["properties"]
+
+
+def test_forward_to_team_is_only_offered_with_a_handoff_service(tools):
+    assert "forward_to_team" not in tools

@@ -5,10 +5,16 @@ import typer
 from dotenv import load_dotenv
 from rich.console import Console
 from rich.markdown import Markdown
+from rich.table import Table
 
 from emporio_agent.application.chat import ChatSession
 from emporio_agent.config import Settings
-from emporio_agent.container import load_store_services, start_chat_session
+from emporio_agent.container import (
+    build_chat_agent,
+    build_data_auditor,
+    load_store_services,
+    start_chat_session,
+)
 from emporio_agent.errors import EmporioError, InvalidRequestError
 
 app = typer.Typer(help="Empório da Música customer service agent.", no_args_is_help=True)
@@ -124,6 +130,132 @@ def check() -> None:
         console.print(f"[green]Model settings OK[/green] · {settings.model}")
     except EmporioError as error:
         console.print(f"[yellow]Model not ready:[/yellow] {error}")
+
+
+@app.command()
+def serve(
+    host: str = typer.Option("127.0.0.1", help="Address to listen on."),
+    port: int = typer.Option(8000, help="Port to listen on."),
+) -> None:
+    """Starts the HTTP API and the web chat page (needs the "web" extra).
+
+    Args:
+        host: Address to listen on.
+        port: Port to listen on.
+    """
+    try:
+        import uvicorn
+
+        from emporio_agent.interfaces.web import create_web_app
+    except ImportError as error:
+        console.print('[red]Install the web extra first:[/red] pip install -e ".[web]"')
+        raise typer.Exit(code=1) from error
+
+    settings = load_settings()
+    try:
+        agent = build_chat_agent(settings)
+    except EmporioError as error:
+        console.print(f"[red]Could not start the agent:[/red] {error}")
+        raise typer.Exit(code=1) from error
+    console.print(f"Web chat on http://{host}:{port}")
+    uvicorn.run(
+        create_web_app(lambda session_id: ChatSession(agent, session_id, settings.max_agent_steps)),
+        host=host,
+        port=port,
+    )
+
+
+@app.command()
+def mcp() -> None:
+    """Runs an MCP server over stdio with the store tools (needs the "mcp" extra).
+
+    Add it to an MCP client (e.g. Claude Desktop) with the command "emporio mcp",
+    started from the project folder.
+    """
+    try:
+        from emporio_agent.application.tools import build_agent_tools
+        from emporio_agent.interfaces.mcp_server import build_mcp_server
+    except ImportError as error:
+        console.print('[red]Install the mcp extra first:[/red] pip install -e ".[mcp]"')
+        raise typer.Exit(code=1) from error
+
+    settings = load_settings()
+    try:
+        services = load_store_services(settings)
+    except EmporioError as error:
+        # This is for stderr, stdout belongs to the MCP protocol
+        Console(stderr=True).print(f"[red]Data problem:[/red] {error}")
+        raise typer.Exit(code=1) from error
+    tools = build_agent_tools(
+        services.catalog,
+        services.order_lookup,
+        services.policy_search,
+        services.schedule,
+        services.clock,
+        services.handoff,
+    )
+    build_mcp_server(tools).run("stdio")
+
+
+SEVERITY_COLORS = {"high": "red", "medium": "yellow", "low": "cyan"}
+
+
+@app.command()
+def audit() -> None:
+    """Lists the inconsistencies found in the store data, for the team to fix."""
+    settings = load_settings()
+    try:
+        auditor = build_data_auditor(settings)
+        clock_now = load_store_services(settings).clock.now()
+    except EmporioError as error:
+        console.print(f"[red]Data problem:[/red] {error}")
+        raise typer.Exit(code=1) from error
+
+    issues = auditor.find_issues(clock_now.date())
+    if not issues:
+        console.print("[green]No issues found.[/green]")
+        return
+    table = Table(title=f"Data issues ({len(issues)})", show_lines=True)
+    for column in ("Severity", "Table", "Record", "Problem"):
+        table.add_column(column)
+    for issue in issues:
+        color = SEVERITY_COLORS[issue.severity.value]
+        table.add_row(
+            f"[{color}]{issue.severity.value}[/{color}]", issue.table, issue.record, issue.message
+        )
+    console.print(table)
+
+
+@app.command()
+def tickets(limit: int = typer.Option(20, help="How many tickets to show.")) -> None:
+    """Shows the cases the agent forwarded to the store team, newest first.
+
+    Args:
+        limit: Max number of tickets to show.
+    """
+    settings = load_settings()
+    try:
+        found = load_store_services(settings).handoff.list_tickets()
+    except EmporioError as error:
+        console.print(f"[red]Could not read the tickets:[/red] {error}")
+        raise typer.Exit(code=1) from error
+    if not found:
+        console.print("No tickets yet.")
+        return
+    table = Table(title=f"Handoff tickets ({len(found)})", show_lines=True)
+    for column in ("Ticket", "Created", "Reason", "Customer", "Order", "Summary"):
+        table.add_column(column)
+    for ticket in found[:limit]:
+        customer = " · ".join(filter(None, [ticket.customer_name, ticket.customer_contact]))
+        table.add_row(
+            ticket.id,
+            f"{ticket.created_at:%Y-%m-%d %H:%M}",
+            ticket.reason.value,
+            customer,
+            str(ticket.order_id or "—"),
+            ticket.summary,
+        )
+    console.print(table)
 
 
 if __name__ == "__main__":

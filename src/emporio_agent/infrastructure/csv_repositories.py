@@ -222,6 +222,14 @@ class CsvCustomerRepository(CustomerRepository):
         )
         self._customers = index_by_id(customers, path.name)
 
+    def list_all(self) -> Sequence[Customer]:
+        """Lists every customer.
+
+        Returns:
+            All the customers of the file.
+        """
+        return list(self._customers.values())
+
     def get_by_id(self, customer_id: int) -> Customer | None:
         """Finds one customer by id.
 
@@ -278,6 +286,14 @@ class CsvOrderRepository(OrderRepository):
             ),
         )
         self._orders = index_by_id(orders, orders_path.name)
+
+    def list_all(self) -> Sequence[Order]:
+        """Lists every order with its items.
+
+        Returns:
+            All the orders of the file.
+        """
+        return list(self._orders.values())
 
     def get_by_id(self, order_id: int) -> Order | None:
         """Finds one order by its number, with its items.
