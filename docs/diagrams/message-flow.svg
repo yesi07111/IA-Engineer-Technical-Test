@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 300" font-family="Segoe UI, Arial, sans-serif" role="img" aria-labelledby="title desc">
+  <title id="title">Processing of one customer message</title>
+  <desc id="desc">The customer asks a price, the agent decides to call get_product_details, the services apply the price rules and the agent answers in Portuguese.</desc>
+  <rect width="1000" height="300" fill="#ffffff"/>
+  <style>
+    .step { font-size: 20px; font-weight: 700; }
+    .txt { font-size: 17px; }
+    .light { fill: #eef3f8; stroke: #0f2a4a; stroke-width: 2; }
+    .dark { fill: #0f2a4a; stroke: #0f2a4a; stroke-width: 2; }
+    .arrow { stroke: #c8102e; stroke-width: 4; fill: none; marker-end: url(#head); }
+  </style>
+  <defs>
+    <marker id="head" markerWidth="10" markerHeight="10" refX="6" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#c8102e"/>
+    </marker>
+  </defs>
+
+  <rect x="5" y="20" width="170" height="260" rx="10" class="light"/>
+  <text x="20" y="55" class="step" fill="#0f2a4a">1 · Customer</text>
+  <text x="20" y="95" class="txt" fill="#1d2733">"Quanto custa o</text>
+  <text x="20" y="120" class="txt" fill="#1d2733">Takamine GD20?"</text>
+
+  <path d="M178,150 L203,150" class="arrow"/>
+
+  <rect x="210" y="20" width="185" height="260" rx="10" class="dark"/>
+  <text x="225" y="55" class="step" fill="#ffffff">2 · Agent</text>
+  <text x="225" y="95" class="txt" fill="#ffffff">Gemini reads the</text>
+  <text x="225" y="120" class="txt" fill="#ffffff">prompt, history and</text>
+  <text x="225" y="145" class="txt" fill="#ffffff">tools, and decides</text>
+  <text x="225" y="170" class="txt" fill="#ffffff">to look up the</text>
+  <text x="225" y="195" class="txt" fill="#ffffff">product</text>
+
+  <path d="M398,150 L423,150" class="arrow"/>
+
+  <rect x="430" y="20" width="175" height="260" rx="10" class="light"/>
+  <text x="445" y="55" class="step" fill="#0f2a4a">3 · Tool call</text>
+  <text x="445" y="95" class="txt" fill="#1d2733">get_product_</text>
+  <text x="445" y="120" class="txt" fill="#1d2733">details(</text>
+  <text x="445" y="145" class="txt" fill="#1d2733">"Takamine GD20")</text>
+
+  <path d="M608,150 L633,150" class="arrow"/>
+
+  <rect x="640" y="20" width="170" height="260" rx="10" class="light"/>
+  <text x="655" y="55" class="step" fill="#0f2a4a">4 · Services</text>
+  <text x="655" y="95" class="txt" fill="#1d2733">Fuzzy lookup and</text>
+  <text x="655" y="120" class="txt" fill="#1d2733">price rules:</text>
+  <text x="655" y="150" class="txt" fill="#1d2733">R$ 2.199,00</text>
+  <text x="655" y="175" class="txt" fill="#1d2733">PIX R$ 2.089,05</text>
+  <text x="655" y="200" class="txt" fill="#1d2733">12x R$ 183,25</text>
+
+  <path d="M813,150 L838,150" class="arrow"/>
+
+  <rect x="845" y="20" width="150" height="260" rx="10" class="dark"/>
+  <text x="858" y="55" class="step" fill="#ffffff">5 · Answer</text>
+  <text x="858" y="95" class="txt" fill="#ffffff">In Portuguese,</text>
+  <text x="858" y="120" class="txt" fill="#ffffff">store tone, only</text>
+  <text x="858" y="145" class="txt" fill="#ffffff">facts from the</text>
+  <text x="858" y="170" class="txt" fill="#ffffff">tool result</text>
+</svg>
