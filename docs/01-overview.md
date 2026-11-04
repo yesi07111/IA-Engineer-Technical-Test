@@ -9,7 +9,7 @@ The solution is a Python application built around a **tool-calling (ReAct) agent
 | Indicator | Result |
 |---|---|
 | Behavioural evaluation with the real model (15 scenarios) | **15/15 passed**, 13/13 correct tool selections |
-| Automated test suite (no API key required) | **172 tests passing** |
+| Automated test suite (no API key required) | **178 tests passing** |
 | Static quality checks | Ruff (lint and format) and mypy with no findings |
 | Continuous integration | GitHub Actions on Python 3.11, 3.12 and 3.13 |
 | Delivery channels | Command line, web chat and HTTP API, MCP server |

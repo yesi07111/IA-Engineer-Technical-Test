@@ -2,11 +2,11 @@
 
 ## 7.1 Automated tests
 
-The suite contains **172 tests**. It runs without an API key in about eight seconds.
+The suite contains **178 tests**. It runs without an API key in about eight seconds.
 
 | Level | Scope |
 |---|---|
-| Unit | Prices and installments, return deadlines, opening hours, CSV validation, PDF section splitting, policy search, tickets, data audit, secret scanning |
+| Unit | Prices and installments, return deadlines, opening hours, CSV validation, PDF section splitting, policy search, tickets, data audit, secret scanning, documentation build |
 | Service and tool | Real data files, invalid inputs, identity verification, error wrapping |
 | End-to-end agent | Full agent loop with a scripted model: tool call, tool result, answer, memory across turns, step limit |
 | Interfaces | Web API endpoints, validation and error mapping; MCP tool listing and calls |
