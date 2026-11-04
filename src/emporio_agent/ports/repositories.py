@@ -1,7 +1,14 @@
 from abc import ABC, abstractmethod
 from collections.abc import Sequence
 
-from emporio_agent.domain.models import Category, Customer, Order, Product, Promotion
+from emporio_agent.domain.models import (
+    Category,
+    Customer,
+    HandoffTicket,
+    Order,
+    Product,
+    Promotion,
+)
 
 
 class ProductRepository(ABC):
@@ -89,4 +96,24 @@ class CustomerRepository(ABC):
 
         Returns:
             The customer, or None when the id does not exist.
+        """
+
+
+class TicketRepository(ABC):
+    """Storage for the cases the agent hands over to the store team."""
+
+    @abstractmethod
+    def save(self, ticket: HandoffTicket) -> None:
+        """Stores a new ticket.
+
+        Args:
+            ticket: Ticket to store.
+        """
+
+    @abstractmethod
+    def list_all(self) -> Sequence[HandoffTicket]:
+        """Lists every stored ticket.
+
+        Returns:
+            The tickets, oldest first.
         """

@@ -5,10 +5,11 @@ import typer
 from dotenv import load_dotenv
 from rich.console import Console
 from rich.markdown import Markdown
+from rich.table import Table
 
 from emporio_agent.application.chat import ChatSession
 from emporio_agent.config import Settings
-from emporio_agent.container import load_store_services, start_chat_session
+from emporio_agent.container import build_chat_agent, load_store_services, start_chat_session
 from emporio_agent.errors import EmporioError, InvalidRequestError
 
 app = typer.Typer(help="Empório da Música customer service agent.", no_args_is_help=True)
@@ -147,16 +148,48 @@ def serve(
 
     settings = load_settings()
     try:
-        settings.check_ready_to_chat()
+        agent = build_chat_agent(settings)
     except EmporioError as error:
         console.print(f"[red]Could not start the agent:[/red] {error}")
         raise typer.Exit(code=1) from error
     console.print(f"Web chat on http://{host}:{port}")
     uvicorn.run(
-        create_web_app(lambda session_id: start_chat_session(settings, session_id)),
+        create_web_app(lambda session_id: ChatSession(agent, session_id, settings.max_agent_steps)),
         host=host,
         port=port,
     )
+
+
+@app.command()
+def tickets(limit: int = typer.Option(20, help="How many tickets to show.")) -> None:
+    """Shows the cases the agent forwarded to the store team, newest first.
+
+    Args:
+        limit: Max number of tickets to show.
+    """
+    settings = load_settings()
+    try:
+        found = load_store_services(settings).handoff.list_tickets()
+    except EmporioError as error:
+        console.print(f"[red]Could not read the tickets:[/red] {error}")
+        raise typer.Exit(code=1) from error
+    if not found:
+        console.print("No tickets yet.")
+        return
+    table = Table(title=f"Handoff tickets ({len(found)})", show_lines=True)
+    for column in ("Ticket", "Created", "Reason", "Customer", "Order", "Summary"):
+        table.add_column(column)
+    for ticket in found[:limit]:
+        customer = " · ".join(filter(None, [ticket.customer_name, ticket.customer_contact]))
+        table.add_row(
+            ticket.id,
+            f"{ticket.created_at:%Y-%m-%d %H:%M}",
+            ticket.reason.value,
+            customer,
+            str(ticket.order_id or "—"),
+            ticket.summary,
+        )
+    console.print(table)
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, datetime
 from enum import StrEnum
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -93,3 +93,22 @@ class PolicySection(StoreRecord):
     number: str
     title: str
     text: str
+
+
+class TicketReason(StrEnum):
+    COMPLAINT = "complaint"
+    RETURN_REQUEST = "return_request"
+    LATE_DELIVERY = "late_delivery"
+    PRODUCT_REQUEST = "product_request"
+    OTHER = "other"
+
+
+class HandoffTicket(StoreRecord):
+    id: str
+    created_at: datetime
+    reason: TicketReason
+    summary: str = Field(min_length=10, max_length=1000)
+    customer_contact: str = Field(min_length=3, max_length=120)
+    customer_name: str | None = None
+    order_id: int | None = Field(default=None, gt=0)
+    session_id: str | None = None

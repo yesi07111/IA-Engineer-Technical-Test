@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     temperature: float | None = Field(None, ge=0, le=1, description="None uses the default")
     data_dir: Path = Path("data")
     memory_db: Path = Path(".memory/conversations.sqlite")
+    tickets_file: Path = Path(".memory/handoff_tickets.jsonl")
     timezone: str = "America/Campo_Grande"
     max_agent_steps: int = Field(25, ge=5, le=100)
     requests_per_minute: float | None = Field(
