@@ -31,7 +31,7 @@ p:has(img.diagram) { margin: 0; }
 p:has(img.diagram) + p em { display: block; text-align: center; font-size: 9.5pt; }
 
 .cover { height: 297mm; width: 210mm; position: relative; break-after: page; overflow: hidden;
-         background: linear-gradient(160deg, #0f2a4a 0%, #0f2a4a 58%, #ffffff 58.1%); }
+         background: linear-gradient(160deg, #0f2a4a 0%, #0f2a4a 52%, #ffffff 52.1%); }
 .cover .accent { position: absolute; left: 22mm; top: 30mm; width: 40mm; height: 3px; background: #c8102e; }
 .cover-inner { position: absolute; left: 22mm; right: 22mm; top: 38mm; color: #fff; }
 .cover .brand { font-size: 10.5pt; letter-spacing: 3px; text-transform: uppercase; color: #f2b8c2; }
@@ -39,7 +39,7 @@ p:has(img.diagram) + p em { display: block; text-align: center; font-size: 9.5pt
 .cover .subtitle { font-size: 14pt; color: #d6e0eb; }
 .cover .doc-type { display: inline-block; margin-top: 18px; padding: 4px 12px; border: 1px solid #f2b8c2;
                    color: #fff; font-size: 10pt; letter-spacing: 1px; text-transform: uppercase; }
-.cover-meta { position: absolute; left: 22mm; right: 22mm; bottom: 28mm; }
+.cover-meta { position: absolute; left: 22mm; right: 22mm; bottom: 24mm; }
 .cover-meta table { font-size: 10.5pt; }
 .cover-meta td { background: none !important; padding: 7px 4px; }
 .cover-meta td:first-child { width: 42mm; color: #4a5868; font-weight: 600; }

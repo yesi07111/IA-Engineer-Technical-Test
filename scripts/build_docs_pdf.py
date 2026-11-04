@@ -32,6 +32,9 @@ REPO_URL = "https://github.com/yesi07111/IA-Engineer-Technical-Test"
 AUTHOR = "Yesenia Valdés Rodríguez"
 CONTACT = "yeseniavaldesrdg@gmail.com"
 POSITION = "AI Engineer – Full-Stack para Aplicações com IA Generativa"
+# This is the job title used in the Artefact submission form, it differs from the LinkedIn one
+OTHER_POSITION_NAME = "AI Engineer - Brazil"
+BRAND_LINE = "Artefact · AI Engineer · Brazil"
 TITLE = "Empório da Música — Customer Service Agent"
 DEFAULT_OUTPUT = ROOT / "dist" / f"{AUTHOR} - {POSITION}.pdf"
 
@@ -338,13 +341,14 @@ def build_html() -> str:
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <title>{TITLE} — Technical Documentation</title><style>{STYLE}</style></head><body>
 <section class="cover"><div class="accent"></div><div class="cover-inner">
-  <div class="brand">Artefact · AI Engineer Technical Case</div>
+  <div class="brand">{BRAND_LINE}</div>
   <h1 class="cover-title">Empório da Música<br>Customer Service Agent</h1>
   <div class="subtitle">Project README and Technical Documentation</div>
   <div class="doc-type">Technical Report</div></div>
   <div class="cover-meta"><table>
     <tr><td>Author</td><td>{AUTHOR}</td></tr>
-    <tr><td>Position</td><td>{POSITION}</td></tr>
+    <tr><td>Position</td><td>{POSITION} (as named in the LinkedIn post)</td></tr>
+    <tr><td>Other position name</td><td>{OTHER_POSITION_NAME}</td></tr>
     <tr><td>Contact</td><td>{CONTACT}</td></tr>
     <tr><td>Repository</td><td><a href="{REPO_URL}">{REPO_URL}</a></td></tr>
     <tr><td>Version / Date</td><td>1.0 · {today}</td></tr>
@@ -442,7 +446,7 @@ def add_header_and_footer(source: Path, target: Path) -> int:
             overlay.drawRightString(width - margin, height - 38, "Technical Report · v1.0")
             overlay.setStrokeColor(HexColor("#d5dce4"))
             overlay.line(margin, 40, width - margin, 40)
-            overlay.drawString(margin, 28, f"{AUTHOR} · Artefact AI Engineer Technical Case")
+            overlay.drawString(margin, 28, f"{AUTHOR} · {BRAND_LINE}")
             overlay.drawRightString(width - margin, 28, f"Page {index + 1} of {total}")
             overlay.save()
             buffer.seek(0)
@@ -452,7 +456,7 @@ def add_header_and_footer(source: Path, target: Path) -> int:
         {
             "/Title": f"{TITLE} — Technical Report",
             "/Author": AUTHOR,
-            "/Subject": "Artefact AI Engineer technical case",
+            "/Subject": f"{BRAND_LINE} — written case",
             "/Keywords": "LLM, agent, LangChain, Gemini, tool calling, RAG",
         }
     )

@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/yesi07111/IA-Engineer-Technical-Test/actions/workflows/ci.yml/badge.svg)](https://github.com/yesi07111/IA-Engineer-Technical-Test/actions/workflows/ci.yml)
 
-A text-based customer service agent for **Empório da Música**, a fictional musical instrument store in Campo Grande/MS, built for the Artefact AI Engineer technical case.
+A text-based customer service agent for **Empório da Música**, a fictional musical instrument store in Campo Grande/MS, built as the written case of the Artefact selection process for the AI Engineer - Brazil position.
 
 The agent is called **Melody**. It talks to customers in the store's friendly tone and can do the following:
 
