@@ -165,6 +165,38 @@ def serve(
     )
 
 
+@app.command()
+def mcp() -> None:
+    """Runs an MCP server over stdio with the store tools (needs the "mcp" extra).
+
+    Add it to an MCP client (e.g. Claude Desktop) with the command "emporio mcp",
+    started from the project folder.
+    """
+    try:
+        from emporio_agent.application.tools import build_agent_tools
+        from emporio_agent.interfaces.mcp_server import build_mcp_server
+    except ImportError as error:
+        console.print('[red]Install the mcp extra first:[/red] pip install -e ".[mcp]"')
+        raise typer.Exit(code=1) from error
+
+    settings = load_settings()
+    try:
+        services = load_store_services(settings)
+    except EmporioError as error:
+        # This is for stderr, stdout belongs to the MCP protocol
+        Console(stderr=True).print(f"[red]Data problem:[/red] {error}")
+        raise typer.Exit(code=1) from error
+    tools = build_agent_tools(
+        services.catalog,
+        services.order_lookup,
+        services.policy_search,
+        services.schedule,
+        services.clock,
+        services.handoff,
+    )
+    build_mcp_server(tools).run("stdio")
+
+
 SEVERITY_COLORS = {"high": "red", "medium": "yellow", "low": "cyan"}
 
 
